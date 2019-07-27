@@ -23,7 +23,7 @@ class DbConnection
             if ( !isset( $dbSettings[ $config ] ) ) throw new Exception( 'Database configuration looks wrong' );
         }
 
-        mysqli_report( MYSQLI_REPORT_STRICT );
+        //mysqli_report( MYSQLI_REPORT_STRICT );
         self::$connection = new \mysqli( $dbSettings[ 'host' ], $dbSettings[ 'username' ], $dbSettings[ 'password' ], $dbSettings[ 'database' ] );
     }
 

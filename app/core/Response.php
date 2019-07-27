@@ -3,6 +3,7 @@
 namespace Core;
 
 use Core\Exceptions\ActionNotAllowed;
+use Core\Exceptions\DeniedException;
 use Core\Exceptions\MethodNotAllowedException;
 use Core\Exceptions\NotAuthorizedException;
 use Core\Exceptions\NotFoundException;
@@ -43,6 +44,11 @@ class Response
 
             case ( $e instanceof NotAuthorizedException ):
                 http_response_code( 401 );
+                $message = $e->getMessage();
+                break;
+
+            case ( $e instanceof DeniedException ):
+                http_response_code( 403 );
                 $message = $e->getMessage();
                 break;
 

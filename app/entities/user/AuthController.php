@@ -5,6 +5,7 @@ namespace Entities\User;
 
 
 use Core\Exceptions\MethodNotAllowedException;
+use Core\Exceptions\NotAuthorizedException;
 use Core\Exceptions\ValidationException;
 use Core\Request;
 use Core\Validation;
@@ -14,11 +15,21 @@ class AuthController extends AbstractController
 {
     /**
      * @throws MethodNotAllowedException
+     * @throws NotAuthorizedException
+     * @throws ValidationException
      */
     public function signIn() {
         $this->methodIsAllowed( 'POST' );
 
+        $body = Request::getBody();
+        $this->proceedInputValidation( $body );
+        $user = UserRepository::getUserByEmail( $body[ 'email' ] );
+        if ( !$user ) throw new NotAuthorizedException( 'User not registered' );
+        if ( !$user->getPassword() === password_hash( $body[ 'password' ], PASSWORD_BCRYPT ) ) {
+            throw new NotAuthorizedException( 'Wrong password' );
+        }
 
+        return $user->getToken();
     }
 
     /**
@@ -30,6 +41,7 @@ class AuthController extends AbstractController
 
         $body = Request::getBody();
         $this->proceedInputValidation( $body );
+        return UserRepository::registerUser( $body );
     }
 
     /**
@@ -42,12 +54,12 @@ class AuthController extends AbstractController
             $validation_errors[ 'email' ] = $error;
         }
 
-        if ( $error = Validation::minMax( 'password', $body ) ) {
-            $validation_errors[ 'email' ] = $error;
+        if ( $error = Validation::minMax( 'password', $body, 6, 10 ) ) {
+            $validation_errors[ 'password' ] = $error;
         }
 
         if ( $validation_errors ) {
-            throw new ValidationException( 'Validation error', $validation_errors );
+            throw new ValidationException( $validation_errors );
         }
     }
 }

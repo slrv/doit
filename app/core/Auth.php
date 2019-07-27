@@ -20,7 +20,7 @@ class Auth
             $token = Request::getHeaderValue( self::AUTH_HEADER );
             $user = UserRepository::getUserByToken( $token );
             if ( $user ) {
-                self::$user = new User( $user );
+                self::$user = $user;
                 self::$isAuthed = true;
             } else {
                 self::$error = 'Invalid token';
