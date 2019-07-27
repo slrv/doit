@@ -39,7 +39,7 @@ class TaskController extends AbstractController
      * @return array
      */
     private function getList() {
-        return TaskRepository::getUserTasks( $this->user_id );
+        return TaskRepository::getUserTasks( $this->user_id, Request::getFields() );
     }
 
     /**

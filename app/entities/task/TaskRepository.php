@@ -6,7 +6,7 @@ use Core\DbConnection;
 
 class TaskRepository
 {
-    public static function getUserTasks( int $id ) {
+    public static function getUserTasks( int $id, array $filters ) {
         $conn = DbConnection::getConnection();
         $stmt = $conn->query( "select * from task where id_user = $id" );
 

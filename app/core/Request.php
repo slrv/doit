@@ -18,4 +18,8 @@ class Request
         $body_str = file_get_contents('php://input');
         return $body_str ? json_decode( $body_str, true ): [];
     }
+
+    public static function getFields() {
+        return array_merge( $_GET, $_POST );
+    }
 }
