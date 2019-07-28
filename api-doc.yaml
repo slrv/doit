@@ -1,0 +1,373 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: Roman Lytvynov
+    email: ramslrv@gmail.com
+  title: Task API
+  version: 0.0.1
+  description: Test task for DOIT
+  
+servers:
+    - url: some/api/path
+      description: Test server
+
+tags: 
+  - name: auth
+    description: User auth section
+  - name: task
+    description: User task section
+    
+paths:
+  /auth/signUp:
+    post:
+      tags: [ auth ]
+      summary: Registration user
+      requestBody:
+        $ref: '#/components/requestBodies/userAuth'
+      responses:
+        200:
+          $ref: '#/components/responses/userResponse'
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        
+                
+  /auth/signIn:
+    post:
+      tags: [ auth ]
+      summary: Login user
+      requestBody:
+        $ref: '#/components/requestBodies/userAuth'
+      responses:
+        200:
+          $ref: '#/components/responses/userResponse'
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        401:
+          description: Authorization error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /task:
+    get:
+      tags: [ task ]
+      security: 
+        - ApiKey: []
+      summary: Returns a list of user tasks
+      parameters:
+        - name: perPage
+          in: query
+          description: Send how much items should be per page
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Send what page you want to load
+          schema:
+            type: integer
+        - name: orderBy
+          in: query
+          description: Send field name for ordering
+          schema:
+            type: string
+            enum: [ 'priority', 'due_date', 'created_at', 'done_date' ]
+        - name: order
+          in: query
+          description: Send order type. Not affected without field orderBy
+          schema:
+            type: string
+            enum: [ 'asc', 'desc' ]
+        - name: onlyActive
+          in: query
+          description: Choose only active current tasks
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: Paginated structure with user
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        description: Show total number of entities
+                        example: 99
+                      perPage:
+                        type: integer
+                        description: Show number of entities to show per page
+                        example: 10
+                      currentPage:
+                        type: integer
+                        description: Show current page number
+                        example: 1
+                      next:
+                        type: integer
+                        description: Show next page number if exists, else it null
+                        example: 1
+                        nullable: true
+                      prev:
+                        type: integer
+                        description: Show previous page number if exists, else it null
+                        example: 3
+                        nullable: true
+                      items:
+                        type: array
+                        nullable: true
+                        items:
+                          '$ref': '#/components/schemas/task'
+        401:
+          description: Authorization error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+                          
+    post:
+      tags: [ task ]
+      security: 
+        - ApiKey: []
+      summary: Create task
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required: [ title, due_date ]
+              properties:
+                title:
+                  type: string
+                  maxLength: 256
+                  minLength: 6
+                  example: My task title
+                due_date:
+                  type: string
+                  format: date-time
+                  description: Task due date. Must be in future ( no earlier than now )
+                priority:
+                  type: integer
+                  enum: [ 1, 2, 3 ]
+                  description: 1 - Low, 2 - Normal, 3 - High
+                  
+                
+              
+      responses:
+        201:
+          description: Create task for user
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  data:
+                    '$ref': '#/components/schemas/task'
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        401:
+          description: Authorization error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /task/{id}/done:
+    put:
+      tags: [ task ]
+      summary: Make user task done
+      parameters: 
+        - name: id
+          in: path
+          description: Id of task
+          required: true
+          schema:
+            type: integer
+      security: 
+        - ApiKey: []
+      responses:
+        200:
+          description: Task done
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  data:
+                    '$ref': '#/components/schemas/task'
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        401:
+          description: Authorization error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        
+                    
+  /task/{id}:
+    delete:
+      tags: [ task ]
+      summary: Delete user task
+      parameters: 
+        - name: id
+          in: path
+          description: Id of task
+          required: true
+          schema:
+            type: integer
+      security: 
+        - ApiKey: []
+      responses:
+        200:
+          description: Task deleted
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  data:
+                    type: string
+                    description: Text representation of gow much rows was deleted
+                    example: 1 task(s) was deleted
+        401:
+          description: Authorization error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+                  
+            
+components:
+  securitySchemes:
+    ApiKey:
+      name: Authorization
+      type: apiKey
+      in: header
+      
+  requestBodies:
+    userAuth:
+      description: User request to signIn or signUp
+      content:
+        application/json:
+          schema:
+            properties:
+              email:
+                type: string
+                description: Valid email address
+              password:
+                type: string
+                minLength: 6
+                maxLength: 10
+  
+  responses:
+    userResponse:
+      description: User success auth response
+      content:
+        application/json:
+          schema:
+            properties:
+              success:
+                type: boolean
+                default: true
+              data:
+                type: string
+                description: User auth token
+      
+  schemas:
+    error:
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          example: something wrong
+          description: Error message
+        error:
+          default: null
+          
+    validationError:
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          example: something wrong
+          description: Error message
+        error:
+          type: array
+          items:
+            properties:
+              email:
+                description: field name
+                example: Enter valid email
+          description: In case of validation error includes array with fields and errors
+          nullable: true
+          
+    task:
+      description: User task
+      properties:
+        id:
+          type: integer
+          example: 1
+        id_user:
+          type: integer
+          example: 27
+        title:
+          type: string
+          example: 'My task'
+        priority:
+          type: integer
+          enum: [ 1, 2, 3 ]
+          description: 1 - Low, 2 - Normal, 3 - High
+        due_date:
+          type: string
+          format: date-time
+        created_at: 
+          type: string
+          format: date-time
+        done_date:
+          type: string
+          format: date-time
+          nullable: true
+      
