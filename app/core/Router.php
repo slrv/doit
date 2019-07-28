@@ -31,8 +31,7 @@ class Router
      * @throws NotFoundException
      */
     public static function dispatch() {
-        $uri = trim( $_SERVER[ 'REQUEST_URI' ], '/' );
-
+        $uri = trim( Request::getUri(), '/' );
         $requested_route = explode( '/', $uri );
 
         self::$entity = $requested_route[ 0 ];

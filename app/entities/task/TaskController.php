@@ -3,10 +3,12 @@
 namespace Entities\Task;
 
 use Core\Auth;
+use Core\Exceptions\ActionNotAllowed;
 use Core\Exceptions\DeniedException;
 use Core\Exceptions\MethodNotAllowedException;
 use Core\Exceptions\NotAuthorizedException;
 use Core\Exceptions\NotFoundException;
+use Core\Exceptions\ServiceUnavailableException;
 use Core\Exceptions\ValidationException;
 use Core\Request;
 use Core\Validation;
@@ -16,6 +18,12 @@ class TaskController extends AbstractController
 {
     private $user_id;
 
+    /**
+     * TaskController constructor.
+     * @param $method
+     * @param null $entity_id
+     * @throws NotAuthorizedException
+     */
     public function __construct( $method, $entity_id = null )
     {
         parent::__construct( $method, $entity_id );
@@ -23,6 +31,10 @@ class TaskController extends AbstractController
         $this->user_id = Auth::getUser()->getId();
     }
 
+    /**
+     * @return array|void
+     * @throws MethodNotAllowedException
+     */
     public function get() {
         return ( $this->entity_id ) ?
             $this->getOne() : $this->getList();
@@ -37,14 +49,17 @@ class TaskController extends AbstractController
 
     /**
      * @return array
+     * @throws \Exception
      */
     private function getList() {
         return TaskRepository::getUserTasks( $this->user_id, Request::getFields() );
     }
 
     /**
+     * @return array|null
      * @throws MethodNotAllowedException
      * @throws ValidationException
+     * @throws ServiceUnavailableException
      */
     public function post() {
         $this->methodIsAllowed( 'POST' );
@@ -52,13 +67,17 @@ class TaskController extends AbstractController
         $body = Request::getBody();
         $this->createValidator( $body );
 
+        http_response_code( 201 );
         return TaskRepository::createUserTask( $this->user_id, $body );
     }
 
     /**
+     * @return array|string
+     * @throws ActionNotAllowed
+     * @throws DeniedException
      * @throws MethodNotAllowedException
      * @throws NotFoundException
-     * @throws DeniedException
+     * @throws ServiceUnavailableException
      */
     public function done() {
         $this->methodIsAllowed( 'PUT' );
@@ -66,7 +85,7 @@ class TaskController extends AbstractController
         $task = TaskRepository::getOneTask( $this->entity_id );
         if ( !$task ) throw new NotFoundException( 'Task not found' );
         if ( $task->getIdUser() !== $this->user_id ) throw new DeniedException( 'Action denied for this user' );
-        if ( $task->getDone() || $task->getDueDate() > new \DateTime() ) return 'Task not active';
+        if ( $task->getDone() || $task->getDueDate() > new \DateTime() ) throw new ActionNotAllowed( 'Task not active' );
 
         return TaskRepository::setDone( $this->entity_id );
     }

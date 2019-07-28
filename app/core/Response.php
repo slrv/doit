@@ -7,6 +7,8 @@ use Core\Exceptions\DeniedException;
 use Core\Exceptions\MethodNotAllowedException;
 use Core\Exceptions\NotAuthorizedException;
 use Core\Exceptions\NotFoundException;
+use Core\Exceptions\QueryException;
+use Core\Exceptions\ServiceUnavailableException;
 use Core\Exceptions\ValidationException;
 use Exception;
 
@@ -50,6 +52,16 @@ class Response
             case ( $e instanceof DeniedException ):
                 http_response_code( 403 );
                 $message = $e->getMessage();
+                break;
+
+            case ( $e instanceof ServiceUnavailableException ):
+                http_response_code( 503 );
+                $message = $e->getMessage();
+                break;
+
+            case ( $e instanceof QueryException ):
+                http_response_code( 500 );
+                $message = 'Server error';
                 break;
 
             default:

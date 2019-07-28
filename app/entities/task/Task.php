@@ -42,4 +42,8 @@ class Task
         return $this->taskData[ 'done_date' ] ?
             $this->taskData[ 'done_date' ] : null;
     }
+
+    public function getInitData() {
+        return $this->taskData;
+    }
 }

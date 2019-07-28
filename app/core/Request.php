@@ -6,6 +6,10 @@ namespace Core;
 
 class Request
 {
+    public static function getUri() {
+        return $_SERVER[ 'PATH_INFO' ];
+    }
+
     public static function hasHeader( string $name ): bool {
         return !empty( getallheaders()[ $name ] );
     }
