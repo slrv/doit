@@ -9,7 +9,7 @@ use Entities\User\UserRepository;
 
 class Auth
 {
-    const AUTH_HEADER = 'HTTP_AUTHORIZATION';
+    const AUTH_HEADER = 'Authorization';
 
     private static $user;
     private static $isAuthed = false;
