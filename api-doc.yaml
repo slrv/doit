@@ -6,17 +6,17 @@ info:
   title: Task API
   version: 0.0.1
   description: Test task for DOIT
-  
-servers:
-    - url: http://test-doit.zzz.com.ua/
-      description: Test server
 
-tags: 
+servers:
+  - url: http://test-doit.zzz.com.ua/
+    description: Test server
+
+tags:
   - name: auth
     description: User auth section
   - name: task
     description: User task section
-    
+
 paths:
   /auth/signUp:
     post:
@@ -33,8 +33,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/validationError'
-        
-                
+
+
   /auth/signIn:
     post:
       tags: [ auth ]
@@ -56,11 +56,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+        405:
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /task:
     get:
       tags: [ task ]
-      security: 
+      security:
         - ApiKey: []
       summary: Returns a list of user tasks
       parameters:
@@ -137,10 +143,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-                          
+        405:
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
     post:
       tags: [ task ]
-      security: 
+      security:
         - ApiKey: []
       summary: Create task
       requestBody:
@@ -162,9 +174,9 @@ paths:
                   type: integer
                   enum: [ 1, 2, 3 ]
                   description: 1 - Low, 2 - Normal, 3 - High
-                  
-                
-              
+
+
+
       responses:
         201:
           description: Create task for user
@@ -194,14 +206,14 @@ paths:
     put:
       tags: [ task ]
       summary: Make user task done
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Id of task
           required: true
           schema:
             type: integer
-      security: 
+      security:
         - ApiKey: []
       responses:
         200:
@@ -233,20 +245,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-        
-                    
+
+
   /task/{id}:
     delete:
       tags: [ task ]
       summary: Delete user task
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Id of task
           required: true
           schema:
             type: integer
-      security: 
+      security:
         - ApiKey: []
       responses:
         200:
@@ -274,15 +286,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-                  
-            
+
+
 components:
   securitySchemes:
     ApiKey:
-      name: HTTP_AUTHORIZATION
+      name: Authorization
       type: apiKey
       in: header
-      
+
   requestBodies:
     userAuth:
       description: User request to signIn or signUp
@@ -297,7 +309,7 @@ components:
                 type: string
                 minLength: 6
                 maxLength: 10
-  
+
   responses:
     userResponse:
       description: User success auth response
@@ -311,7 +323,7 @@ components:
               data:
                 type: string
                 description: User auth token
-      
+
   schemas:
     error:
       properties:
@@ -324,7 +336,7 @@ components:
           description: Error message
         error:
           default: null
-          
+
     validationError:
       properties:
         success:
@@ -343,7 +355,7 @@ components:
                 example: Enter valid email
           description: In case of validation error includes array with fields and errors
           nullable: true
-          
+
     task:
       description: User task
       properties:
@@ -363,7 +375,7 @@ components:
         due_date:
           type: string
           format: date-time
-        created_at: 
+        created_at:
           type: string
           format: date-time
         done_date:
