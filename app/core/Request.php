@@ -7,15 +7,16 @@ namespace Core;
 class Request
 {
     public static function getUri() {
-        return $_SERVER[ 'PATH_INFO' ];
+        $path = str_replace( '?'.$_SERVER[ 'QUERY_STRING'], '', $_SERVER[ 'REQUEST_URI' ] );
+        return $path;
     }
 
     public static function hasHeader( string $name ): bool {
-        return !empty( getallheaders()[ $name ] );
+        return !empty( $_SERVER[ $name ] );
     }
 
     public static function getHeaderValue( string $name ): ?string {
-        return getallheaders()[ $name ] ?? null;
+        return $_SERVER[ $name ] ?? null;
     }
 
     public static function getBody() {

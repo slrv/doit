@@ -8,7 +8,7 @@ info:
   description: Test task for DOIT
   
 servers:
-    - url: some/api/path
+    - url: http://test-doit.zzz.com.ua/
       description: Test server
 
 tags: 
@@ -279,7 +279,7 @@ paths:
 components:
   securitySchemes:
     ApiKey:
-      name: Authorization
+      name: HTTP_AUTHORIZATION
       type: apiKey
       in: header
       
@@ -370,4 +370,3 @@ components:
           type: string
           format: date-time
           nullable: true
-      
