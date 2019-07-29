@@ -20,11 +20,7 @@ class Request
     }
 
     public static function getMethod() {
-        $realMethod = $_SERVER[ 'REQUEST_METHOD' ];
-        return (
-            $realMethod == 'OPTIONS' &&
-            self::hasHeader( 'Access-Control-Request-Method' )
-        ) ? self::getHeaderValue( 'Access-Control-Request-Method' ) : $realMethod;
+        return $_SERVER[ 'REQUEST_METHOD' ];
     }
 
     public static function getBody() {
