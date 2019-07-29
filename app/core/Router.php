@@ -47,7 +47,7 @@ class Router
      * @throws NotFoundException
      */
     private static function getFunction() {
-        self::$httpMethod = $_SERVER[ 'REQUEST_METHOD' ];
+        self::$httpMethod = Request::getMethod();
         if ( !in_array( self::$httpMethod, Router::allowed_methods ) ) throw new MethodNotAllowedException();
 
         if ( !isset( self::entityMap[ self::$entity ] ) ) throw new NotFoundException( 'Resource not found' );

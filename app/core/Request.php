@@ -19,6 +19,14 @@ class Request
         return $_SERVER[ $name ] ?? null;
     }
 
+    public static function getMethod() {
+        $realMethod = $_SERVER[ 'REQUEST_METHOD' ];
+        return (
+            $realMethod == 'OPTIONS' &&
+            self::hasHeader( 'Access-Control-Request-Method' )
+        ) ? self::getHeaderValue( 'Access-Control-Request-Method' ) : $realMethod;
+    }
+
     public static function getBody() {
         $body_str = file_get_contents('php://input');
         return $body_str ? json_decode( $body_str, true ): [];
