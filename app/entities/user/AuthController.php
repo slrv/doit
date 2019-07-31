@@ -25,7 +25,7 @@ class AuthController extends AbstractController
         $this->proceedInputValidation( $body );
         $user = UserRepository::getUserByEmail( $body[ 'email' ] );
         if ( !$user ) throw new NotAuthorizedException( 'User not registered' );
-        if ( !$user->getPassword() === password_hash( $body[ 'password' ], PASSWORD_BCRYPT ) ) {
+        if ( !password_verify( $body[ 'password' ], $user->getPassword() ) ) {
             throw new NotAuthorizedException( 'Wrong password' );
         }
 
