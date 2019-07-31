@@ -25,7 +25,11 @@ class Request
 
     public static function getBody() {
         $body_str = file_get_contents('php://input');
-        return $body_str ? json_decode( $body_str, true ): [];
+        $body_arr = json_decode( $body_str, true );
+        return (
+            json_last_error() === JSON_ERROR_NONE &&
+            is_array( $body_arr )
+        ) ? $body_arr : [];
     }
 
     public static function getFields() {
